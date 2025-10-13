@@ -37,6 +37,9 @@ dependencies:
   get: ^4.7.2
   dio: ^5.9.0
   video_player: ^2.10.0
+  web_socket_channel: ^3.0.3
+  path_provider: ^2.1.5
+  connectivity_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:

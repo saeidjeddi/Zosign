@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:zosign/views/main_scrren.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MainAppTv());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MainAppTv extends StatelessWidget {
+  const MainAppTv({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
