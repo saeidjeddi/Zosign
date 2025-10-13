@@ -1,5 +1,5 @@
-name: xixigol
-description: "A new Flutter project."
+name: zosign
+description: "A Flutter project TV."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -34,12 +34,9 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  video_player: ^2.10.0
-  webview_flutter: ^4.13.0
-  path_provider: ^2.1.5
-  crypto: ^3.0.6
-  dio: ^5.9.0
   get: ^4.7.2
+  dio: ^5.9.0
+  video_player: ^2.10.0
 
 dev_dependencies:
   flutter_test:

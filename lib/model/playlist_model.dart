@@ -3,14 +3,14 @@ class PlaylistModel {
   String? title;
   String? url;
   String? filename;
-  String? content_type;
+  String? contentType;
 
   PlaylistModel({
     this.id,
     this.title,
     this.url,
     this.filename,
-    this.content_type,
+    this.contentType,
   });
 
   PlaylistModel.fromJson(Map<String, dynamic> json) {
@@ -18,6 +18,6 @@ class PlaylistModel {
     title = json['title'];
     url = "http://${json['url']}";
     filename = json['filename'];
-    content_type = json['content_type'];
+    contentType = json['content_type'];
   }
 }

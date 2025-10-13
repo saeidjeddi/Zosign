@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:get/get.dart';
-import 'package:xixigol/controller/playlist_controller.dart';
+import 'package:zosign/controller/playlist_controller.dart';
 
 int _selectedVideoIndex = 0;
 

@@ -1,4 +1,4 @@
-package com.example.xixigol
+package com.example.zosign
 
 import io.flutter.embedding.android.FlutterActivity
 

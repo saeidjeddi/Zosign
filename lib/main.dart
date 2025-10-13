@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:xixigol/views/main_scrren.dart';
+import 'package:zosign/views/main_scrren.dart';
 
 void main() {
   runApp(const MyApp());

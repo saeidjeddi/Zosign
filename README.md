@@ -1,96 +1,16 @@
-# Zosign
+# zosign
 
-یک اپلیکیشن ساده پخش ویدیو نوشته‌شده با Flutter که لیست پخش را از یک API دریافت کرده و ویدیوها را پخش می‌کند.
+A Flutter project TV.
 
-## معرفی
+## Getting Started
 
-این پروژه یک پلیر ویدیویی است که از بسته‌های رسمی Flutter مانند `video_player` برای پخش ویدیوی شبکه و `dio` برای دریافت لیست پخش استفاده می‌کند. وضعیت و داده‌ها با `GetX` مدیریت می‌شوند.
+This project is a starting point for a Flutter application.
 
-## ویژگی‌ها
+A few resources to get you started if this is your first Flutter project:
 
-- دریافت لیست پخش (playlist) از سرور REST (JSON)
-- پخش ویدیوهای شبکه با کنترل‌های استاندارد (پخش/مکث، عقب/جلو، 10 ثانیه جابجایی)
-- نمایش پروگرس و قابلیت scrubbing
-- استفاده از `GetX` برای مدیریت وضعیت
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-## پیش‌نیازها
-
-- Flutter SDK (نسخه اعلام‌شده در `pubspec.yaml`: SDK ^3.9.2)
-- دستگاه یا شبیه‌ساز Android/iOS پیکربندی‌شده
-- دستگاه/شبیه‌ساز باید به همان شبکه محلی که API روی آن قرار گرفته (مثلاً 192.168.5.204) دسترسی داشته باشد، یا آدرس `baseUrl` را به یک URL عمومی تغییر دهید.
-
-> توجه: پروژه به صورت پیش‌فرض از HTTP (آدرس محلی `http://192.168.5.204/`) استفاده می‌کند و در `AndroidManifest.xml` گزینه `usesCleartextTraffic="true"` فعال شده است تا اتصال‌های غیر TLS/HTTPS روی اندروید کار کنند. اگر آدرس API شما HTTPS است یا قصد انتشار دارید، این تنظیم را مجدداً بررسی کنید.
-
-## نصب و اجرا
-
-1. وابسته‌ها را نصب کنید:
-
-```powershell
-flutter pub get
-```
-
-2. برنامه را روی دستگاه یا شبیه‌ساز اجرا کنید:
-
-```powershell
-flutter run -d <deviceId>
-# یا فقط
-flutter run
-```
-
-3. ساخت بسته برای اندروید (در صورت نیاز):
-
-```powershell
-flutter build apk --release
-```
-
-## تنظیمات API و آدرس‌ها
-
-- آدرس پایه و نقطه‌ی گرفتن لیست پخش در `lib/components/url.dart` تعریف شده است:
-
-  - `baseUrl = "http://192.168.5.204/"`
-  - `playlist = "{baseUrl}videos/playlist/?format=json"` (نقطه انتهایی)
-- در صورتی که API شما روی یک آدرس عمومی یا HTTPS میزبانی می‌شود، مقدار `baseUrl` را تغییر دهید. اگر از آدرس محلی استفاده می‌کنید، مطمئن شوید دستگاه اجراکننده به آن شبکه متصل است.
-
-## معماری و فایل‌های مهم
-
-- `lib/main.dart` — نقطه ورود برنامه و تنظیم Theme
-- `lib/views/main_scrren.dart` — صفحه اصلی که ویدیو را نمایش می‌دهد و کنترل‌های پخش را دارد
-- `lib/controller/playlist_controller.dart` — کنترل‌کننده‌ی GetX که لیست پخش را از سرور می‌گیرد
-- `lib/model/playlist_model.dart` — مدل داده‌ای هر آیتم لیست پخش
-- `lib/services/dio_service.dart` — wrapper ساده برای درخواست‌های HTTP با `dio`
-- `lib/components/url.dart` — ثابت‌های مربوط به URL/Endpoint
-
-## وابستگی‌های کلیدی
-
-- flutter
-- video_player
-- dio
-- get
-- webview_flutter (نصب شده در `pubspec.yaml` اما در کد فعلی جایی استفاده نشده)
-- path_provider
-
-مشاهده نسخه‌ها: `pubspec.yaml`.
-
-## نکات پیاده‌سازی و محدودیت‌ها
-
-- در `PlaylistModel.fromJson` مقدار `url` با `"http://${json['url']}"` ساخته می‌شود. اگر مقدار دریافتی از سرور از قبل شامل schema (`http://` یا `https://`) باشد، این روش منجر به URL نامعتبر خواهد شد. در صورت نیاز، این قسمت را به حالت امن‌تری تغییر دهید (مثلاً اعتبارسنجی یا بررسی پیشوند).
-- کنترل خطاها در تماس شبکه ساده است و جزئیات خطاها لاگ نمی‌شود؛ برای حالت‌های تولیدی پیشنهاد می‌شود لاگ و مدیریت خطای کامل‌تری اضافه شود.
-- برای پخش روان و مدیریت منابع به موقع، کنترلر `VideoPlayerController` بعد از تغییر ویدیوDispose می‌شود اما بررسی‌های بیشتری برای edge-caseها (مثلاً تغییر سریع بین ویدیوها) می‌تواند افزوده شود.
-
-## توسعه و مشارکت
-
-- برای تغییر آدرس API، `lib/components/url.dart` را ویرایش کنید.
-- ویژگی جدید اضافه کنید، پوشه‌ی مرتبط را بسازید و تست‌های کوچک بنویسید.
-- pull request بفرستید یا issue باز کنید تا در مخزن بررسی شود.
-
-## اجرای تست‌ها
-
-- این پروژه تست واحد مشخصی ندارد. برای اضافه کردن تست ویجت یا واحد می‌توانید از `flutter_test` استفاده کنید و تست‌ها را در پوشه‌ی `test/` قرار دهید.
-
-## مجوز
-
-MIT — می‌توانید متن کامل مجوز را اضافه کنید یا مجوز دیگری انتخاب کنید.
-
----
-
-@ saeed jeddi
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
