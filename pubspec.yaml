@@ -40,6 +40,8 @@ dependencies:
   web_socket_channel: ^3.0.3
   path_provider: ^2.1.5
   connectivity_plus: ^7.0.0
+  firebase_core: ^4.2.0
+  firebase_messaging: ^16.0.3
 
 dev_dependencies:
   flutter_test:

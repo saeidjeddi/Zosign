@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "855738105103",
+    "project_id": "earnest-entropy-446716-c7",
+    "storage_bucket": "earnest-entropy-446716-c7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855738105103:android:5dfa44373a81569a6f927a",
+        "android_client_info": {
+          "package_name": "com.example.zosign"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgUdpSzp8e_9va3hztKdrMXFcYgGg2gtE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855738105103:android:539a671d30bcb4b66f927a",
+        "android_client_info": {
+          "package_name": "com.zosing.saeed"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgUdpSzp8e_9va3hztKdrMXFcYgGg2gtE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
