@@ -8,10 +8,11 @@ import 'package:zosign/services/video_cache_service.dart';
 
 class PlaylistController extends GetxController {
   RxBool loading = false.obs;
-  RxBool downloading = false.obs; 
-  RxDouble progress = 0.0.obs; 
-  RxList<PlaylistModel> playlistList = RxList();
+  RxBool downloading = false.obs;
+  RxDouble progress = 0.0.obs;
+  RxList<PlaylistModel> playlistList = <PlaylistModel>[].obs;
 
+  RxBool refreshTrigger = false.obs; // ✅ برای ریفرش از نوتیف
   final VideoCacheService cacheService = VideoCacheService();
 
   Future<bool> hasConnection() async {
@@ -72,5 +73,15 @@ class PlaylistController extends GetxController {
 
     downloading.value = false;
     return file;
+  }
+
+  Future<void> clearCache() async {
+    final dir = Directory(await cacheService.getCachePath());
+    if (await dir.exists()) {
+      await for (var entity in dir.list()) {
+        if (entity is File) await entity.delete();
+      }
+    }
+    print('🧹 Cache cleared successfully');
   }
 }

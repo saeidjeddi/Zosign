@@ -6,8 +6,6 @@ import 'package:dio/dio.dart';
 
 class DioServices {
 
-
-
   Future<dynamic> getMethod(String url) async {
      Dio dio = Dio();
 
@@ -32,4 +30,13 @@ class DioServices {
 }
 
 
+
+
+
+
+
 }
+
+
+
+

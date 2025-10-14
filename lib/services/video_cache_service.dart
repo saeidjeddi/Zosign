@@ -35,4 +35,15 @@ class VideoCacheService {
 
     return File(savePath);
   }
+
+  Future<void> clearCache() async {
+    final path = await getCachePath();
+    final dir = Directory(path);
+    if (await dir.exists()) {
+      await for (var entity in dir.list()) {
+        if (entity is File) await entity.delete();
+      }
+    }
+    print('🧹 Cache cleared successfully');
+  }
 }
