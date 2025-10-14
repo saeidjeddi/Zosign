@@ -6,7 +6,7 @@ import 'package:zosign/views/main_scrren.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print('📩 پیام در بک‌گراند: ${message.messageId}');
+  print('📩 FCM Message in Background: ${message.messageId}');
 }
 
 Future<String?> getFcmTokenWithRetry({int retries = 5, int delaySeconds = 2}) async {
@@ -14,9 +14,9 @@ Future<String?> getFcmTokenWithRetry({int retries = 5, int delaySeconds = 2}) as
     try {
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null) return token;
-      print('⏳ توکن هنوز آماده نیست، تلاش دوباره...');
+      print('⏳ FCM Token is null, retrying... ($i)');
     } catch (e) {
-      print('❌ خطا هنگام گرفتن توکن FCM: $e');
+      print('❌ FCM Token error: $e');
     }
     await Future.delayed(Duration(seconds: delaySeconds));
   }
@@ -38,9 +38,7 @@ void main() async {
   final fcmToken = await getFcmTokenWithRetry();
   if (fcmToken != null) {
     print('🔥 FCM Token: $fcmToken');
-  } else {
-    print('❌ بعد از چند تلاش، FCM Token هنوز آماده نیست.');
-  }
+  } 
 
   runApp(const MainAppTv());
 }
