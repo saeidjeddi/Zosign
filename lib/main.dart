@@ -75,6 +75,16 @@ Future<void> main() async {
     print('❌ Error getting FCM token: $e');
   });
 
+
+  // 🔄 هندل ریفرش توکن
+  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+  print('🔁 New FCM token: $newToken');
+  final box = GetStorage();
+  await box.write('fcm_token', newToken);
+  await sendTokenToServer(newToken);
+});
+
+
   // ✅ هندل نوتیف در فورگراند
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     print('📩 Message in foreground: ${message.notification?.title}');
