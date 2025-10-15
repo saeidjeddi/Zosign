@@ -1,16 +1,144 @@
-# zosign
+# Zosign
 
-A Flutter project TV.
+یک برنامه Flutter برای پخش و مدیریت لیست پخش ویدیو (مناسب برای تلویزیون/دستگاه‌های اندرویدی بی‌سرپرست).
 
-## Getting Started
+این پروژه هدفش پخش پیوسته و خودکار ویدیوها از یک لیست پخش (playlist) است. ویدیوها به‌صورت محلی کش می‌شوند، نوتیفیکیشن فایربیس مدیریت می‌شود و اپ قابلیت بروزرسانی لیست پخش در زمان دریافت نوتیف را دارد.
 
-This project is a starting point for a Flutter application.
+## ویژگی‌ها
 
-A few resources to get you started if this is your first Flutter project:
+- پخش ویدیو با بسته `video_player`.
+- کش کردن ویدیوها در پوشه‌ی اسناد برنامه با دانلود از سرور.
+- پیش‌بارگذاری ویدیو بعدی برای تجربه‌ی پخش روان.
+- دریافت و مدیریت نوتیفیکیشن‌ها با `firebase_messaging` و `flutter_local_notifications`.
+- نگهداری توکن FCM در `get_storage` و ارسال آن به سرور.
+- تشخیص اتصال اینترنت با `connectivity_plus` و رفتار آفلاین (پخش از کش).
+- مدیریت ساده وضعیت با `get` (GetX).
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## ساختار پروژه (کلیدی)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- `lib/main.dart` — مقداردهی اولیه Firebase، اعلان‌ها و نقطه‌ی ورود برنامه.
+- `lib/views/main_scrren.dart` — صفحه‌ی اصلی که ویدیو را نمایش می‌دهد و مدیریت پخش را انجام می‌دهد.
+- `lib/controller/playlist_controller.dart` — منطق بارگذاری لیست پخش، دانلود و مدیریت کش.
+- `lib/services/video_cache_service.dart` — دانلود و ذخیرهٔ فایل‌های ویدیویی در دایرکتوری محلی.
+- `lib/services/dio_service.dart` — wrapper ساده برای درخواست‌های HTTP با `dio`.
+- `lib/model/playlist_model.dart` — مدل داده‌ای برای آیتم‌های لیست پخش.
+- `lib/firebase_options.dart` — پیکربندی تولید شده توسط FlutterFire CLI (برای اندروید پیکربندی شده).
+
+## پیش‌نیازها
+
+- Flutter SDK (مطابق `environment` در `pubspec.yaml` — در این پروژه `sdk: ^3.9.2`).
+- Android SDK/NDK (در صورت ساخت برای اندروید TV یا دستگاه اندرویدی).
+- یک پروژه‌ی Firebase تنظیم شده (مقادیر `firebase_options.dart` در پروژه وجود دارد، اما اگر می‌خواهید پروژه‌ی خودتان را وصل کنید از FlutterFire CLI استفاده کنید).
+
+## راه‌اندازی محلی
+
+1. Flutter و ابزارهای مرتبط را نصب کنید: (مراجع رسمی Flutter برای نصب)
+2. از پوشهٔ پروژه در ترمینال ویندوز (PowerShell) دستورها را اجرا کنید:
+
+```powershell
+cd c:\Users\saeed\Desktop\zosign
+flutter pub get
+```
+
+3. اگر می‌خواهید پروژه Firebase خود را استفاده کنید، از FlutterFire CLI استفاده کنید (اختیاری):
+
+```powershell
+# نصب FlutterFire CLI اگر لازم است
+dart pub global activate flutterfire_cli
+
+# پیکربندی مجدد Firebase برای پلتفرم‌های مورد نیاز
+flutterfire configure
+```
+
+4. اجرای اپ روی شبیه‌ساز یا دستگاه متصل:
+
+```powershell
+flutter run -d <deviceId>
+```
+
+یا برای بیلد تولیدی (APK):
+
+```powershell
+flutter build apk --release
+```
+
+## پیکربندی سرور و API
+
+- آدرس لیست پخش در کد (فایل `lib/components/url.dart`) مشخص شده و توسط `DioServices.getMethod` خوانده می‌شود. اطمینان حاصل کنید که API شما خروجی JSON مشابه زیر برمی‌گرداند:
+
+نمونه‌ی آیتم JSON مورد انتظار برای هر ویدیو:
+
+```json
+{
+	"id": 1,
+	"title": "Video Title",
+	"url": "example.com/path/to/video.mp4",
+	"filename": "video-1",
+	"content_type": "video/mp4"
+}
+```
+
+نکته: در `PlaylistModel.fromJson` مقدار `url` به صورت `"http://${json['url']}"` ساخته می‌شود؛ بنابراین آدرس‌های ارسالی از API باید به شکل بدون پروتکل (مثلاً `example.com/...`) تطابق داشته باشند یا مدل را مطابق نیازتان تغییر دهید.
+
+## نحوهٔ کار برنامه
+
+1. در شروع، Firebase مقداردهی اولیه می‌شود و توکن FCM گرفته شده و در `GetStorage` ذخیره و به سرور ارسال می‌گردد (`lib/services/sendTokenFcmToServer.dart`).
+2. `MainScreen` کنترلر `PlaylistController` را بارگذاری می‌کند.
+3. اگر اتصال اینترنت وجود داشته باشد، لیست پخش از API خوانده می‌شود؛ در غیر این صورت فایل‌های کش‌شده در پوشهٔ محلی بارگذاری می‌شوند.
+4. ویدیوی فعلی پخش می‌شود؛ ویدیوی بعدی به‌صورت پس‌زمینه دانلود می‌شود تا پخش روان صورت گیرد.
+5. هنگام دریافت نوتیفیکیشن، کنترلر یک فلگ `refreshTrigger` را ست می‌کند که باعث پاک‌سازی کش و بارگذاری مجدد لیست پخش می‌شود.
+
+## نکات توسعه و بهبود پیشنهادی
+
+- امن‌سازی آدرس‌ها: در مدل فعلی `url` با `http://` الحاق می‌شود. بهتر است این منطق را قابل پیکربندی یا ایمن‌تر کنید.
+- کنترل خطا: در حال حاضر خطاها صرفاً چاپ می‌شوند. اضافه کردن نمایش کاربر پسند یا retry منطقی می‌تواند مفید باشد.
+- پاک‌سازی حافظه: هنگام جابجایی بین ویدیوها کنترلر VideoPlayer به‌درستی dispose می‌شود ولی هنگام بستن صفحه تمام موارد مرتبط را بررسی کنید.
+- رمزگذاری/محافظت فایل‌ها: اگر ویدیوها حساس‌اند، مکانیزم DRM یا رمزگذاری را بررسی کنید.
+- تست‌ها: اضافه کردن تست واحد برای `PlaylistController` و سرویس دانلود می‌تواند پایدارسازی را بالا ببرد.
+
+## خطاها و رفع عیب رایج
+
+- اگر ویدیو دانلود نمی‌شود یا خطا در دانلود رخ می‌دهد:
+
+  - مطمئن شوید آدرس API در `lib/components/url.dart` صحیح است.
+  - دسترسی اینترنت و محدودیت‌های شبکه (پورت/فایروال) را بررسی کنید.
+  - مقدار بازگشتی API را با `curl` یا Postman بررسی کنید.
+- اگر Firebase پیام یا توکن کار نمی‌کند:
+
+  - در کنسول Firebase بخش پیام‌رسانی ابری (FCM) پیکربندی‌ها را کنترل کنید.
+  - بررسی کنید که `google-services.json` در `android/app/` وجود دارد (در repo یک نمونه وجود دارد).
+
+## دستورات مفید
+
+- گرفتن وابستگی‌ها:
+
+```powershell
+flutter pub get
+```
+
+- اجرای اپ روی دستگاه متصل:
+
+```powershell
+flutter run -d <deviceId>
+```
+
+- ساخت APK تولیدی:
+
+```powershell
+flutter build apk --release
+```
+
+- بررسی نسخه‌های بسته‌ها:
+
+```powershell
+flutter pub outdated
+```
+
+## مجوز و نویسندگان
+
+- نویسنده: saeidjeddi
+- این پروژه خصوصی است و وارد pub.dev نشده است.
+
+## جمع‌بندی
+
+این پروژه یک پخش‌کننده ویدیوی ساده و قابل توسعه است که برای صفحات تلویزیون یا دستگاه‌های اندرویدی طراحی شده است.
