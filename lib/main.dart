@@ -65,7 +65,6 @@ Future<void> main() async {
   );
   print('🔐 Permissions: ${settings.authorizationStatus}');
 
-  // 📦 دریافت و ذخیره توکن
   FirebaseMessaging.instance.getToken().then((token) {
     print('🔥 FCM Token: $token');
     final box = GetStorage();
