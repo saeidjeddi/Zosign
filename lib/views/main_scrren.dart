@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 import 'package:zosign/controller/playlist_controller.dart';
 import 'package:zosign/model/playlist_model.dart';
+import 'package:zosign/services/video_cache_service.dart';
 import 'package:zosign/services/webSocket_serveice.dart';
 
 class MainScreen extends StatefulWidget {
@@ -50,11 +51,21 @@ class _MainScreenState extends State<MainScreen> {
     // 🔥 گوش دادن به تغییرات پلی‌لیست
     ever(playlistController.playlistList, (List<PlaylistModel> newPlaylist) {
       print('📋 Playlist updated, current length: ${newPlaylist.length}');
-      if (newPlaylist.isNotEmpty && !isControllerInitialized) {
-        _selectedVideoIndex = 0;
-        _playVideo(0);
-      } else if (newPlaylist.isEmpty) {
+      if (newPlaylist.isNotEmpty) {
+        // 🔥 اگر پلی‌لیست تغییر کرد و ویدیو در حال پخش نیست، از اول شروع کن
+        if (!isControllerInitialized) {
+          _selectedVideoIndex = 0;
+          _playVideo(0);
+        } else {
+          // 🔥 اگر ویدیو در حال پخش هست، فقط ایندکس رو آپدیت کن
+          print('ℹ️ Playlist updated but video is playing, will continue...');
+        }
+      } else {
         // اگر پلی‌لیست خالی شد
+        if (isControllerInitialized) {
+          _controller.pause();
+          _controller.dispose();
+        }
         setState(() {
           isControllerInitialized = false;
         });
@@ -98,8 +109,9 @@ class _MainScreenState extends State<MainScreen> {
     print('🔄 Performing refresh (clear cache + reload list)...');
     
     try {
-      // ویدیوی فعلی رو متوقف کن
+      // 🔥 ویدیوی فعلی رو فقط اگر در حال پخش هست متوقف کن
       if (isControllerInitialized) {
+        print('⏸️ Stopping current video for refresh...');
         await _controller.pause();
         await _controller.dispose();
         setState(() {
@@ -112,13 +124,21 @@ class _MainScreenState extends State<MainScreen> {
       
       print('✅ Refresh completed - cache cleared, list reloaded');
       
-      // اگر ویدیویی موجود هست، از اول پلی‌لیست شروع کن
+      // 🔥 همیشه پس از ریفرش، از ویدیوی اول شروع کن
+      if (playlistController.playlistList.isNotEmpty) {
+        print('🎬 Starting playback from first video after refresh');
+        _selectedVideoIndex = 0;
+        _playVideo(0);
+      } else {
+        print('❌ No videos available after refresh');
+      }
+    } catch (e) {
+      print('❌ Error during refresh: $e');
+      // 🔥 در صورت خطا هم سعی کن پخش رو از اول شروع کنی
       if (playlistController.playlistList.isNotEmpty) {
         _selectedVideoIndex = 0;
         _playVideo(0);
       }
-    } catch (e) {
-      print('❌ Error during refresh: $e');
     }
   }
 
@@ -134,6 +154,9 @@ class _MainScreenState extends State<MainScreen> {
     final playlist = playlistController.playlistList;
     if (playlist.isEmpty) {
       print('❌ Playlist is empty, cannot play video');
+      setState(() {
+        isControllerInitialized = false;
+      });
       return;
     }
 
@@ -166,9 +189,10 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         isControllerInitialized = true;
         _isVideoEnded = false;
+        _selectedVideoIndex = safeIndex; // 🔥 آپدیت ایندکس فعلی
       });
       
-      _controller.play();
+      await _controller.play();
       print('✅ Video started playing: ${model.title}');
 
       // 🔥 لیسنر پایان ویدیو برای لوپ
@@ -191,6 +215,7 @@ class _MainScreenState extends State<MainScreen> {
           _playNextVideo(safeIndex);
         }
       });
+
     } catch (e) {
       print('❌ Error playing video: $e');
       setState(() {
@@ -204,7 +229,10 @@ class _MainScreenState extends State<MainScreen> {
   // 🔥 پخش ویدیوی بعدی با قابلیت لوپ
   void _playNextVideo(int currentIndex) {
     final playlist = playlistController.playlistList;
-    if (playlist.isEmpty) return;
+    if (playlist.isEmpty) {
+      print('❌ Playlist is empty, cannot play next video');
+      return;
+    }
 
     // 🔥 محاسبه ایندکس بعدی با لوپ
     final nextIndex = (currentIndex + 1) % playlist.length;
@@ -254,7 +282,14 @@ class _MainScreenState extends State<MainScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-
+                      const SizedBox(height: 8),
+                      Text(
+                        'Queue length: ${_refreshQueue.length}',
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 14,
+                        ),
+                      ),
                     ],
                   );
                 }
@@ -266,7 +301,7 @@ class _MainScreenState extends State<MainScreen> {
                       const CircularProgressIndicator(color: Colors.white),
                       const SizedBox(height: 16),
                       Text(
-                        'Loading video...',
+                        'Loading video ${_selectedVideoIndex + 1} of ${playlistController.playlistList.length}...',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 16,
