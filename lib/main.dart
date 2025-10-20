@@ -52,7 +52,7 @@ Future<void> main() async {
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
     onDidReceiveNotificationResponse: (NotificationResponse response) {
-      print('🖱️ user clicked notification: ${response.payload}');
+      print('🖱️ User clicked notification: ${response.payload}');
     },
   );
 
@@ -77,61 +77,49 @@ Future<void> main() async {
     print('⚠️ Firebase not supported or failed: $e');
   }
 
-  if (fcmToken == null || fcmToken.isEmpty) {
-    print('⚙️ Using WebSocket fallback...');
-    final wsService = Get.put(WebSocketService());
+  // 🔥 همیشه WebSocket رو راه‌اندازی کن - حتی اگر FCM فعال باشد
+  print('🔗 Starting WebSocket service...');
+  final wsService = Get.put(WebSocketService());
 
-// در بخش WebSocket و FCM، این خط رو عوض کن:
-wsService.connect(onMessage: (msg) async {
-  print('📩 WebSocket Message: $msg');
-
-  // پاک کردن کش‌های ذخیره‌شده
-  await box.erase();
-
-  // پاک کردن کش ویدیوها
-  try {
-    final dir = await getApplicationDocumentsDirectory();
-    final videoDir = Directory('${dir.path}/videos');
-    if (await videoDir.exists()) {
-      videoDir.deleteSync(recursive: true);
-      print('🧽 Video cache deleted: ${videoDir.path}');
-    }
-  } catch (e) {
-    print('⚠️ Error deleting video cache: $e');
-  }
-
-  // 🔥 فقط پلی‌لیست رو ریفرش کن - بدون دانلود خودکار
-  await playlistController.clearCacheWithoutDownload();
-});
-  } else {
-    print('🚀 Using Firebase Messaging normally...');
+  // 🔥 فقط WebSocket مسئول پاک‌سازی کش باشد
+  wsService.connect(onMessage: (msg) async {
+    print('📩 WebSocket Message: $msg');
     
-    // 🔥 هندل کردن نوتیفیکیشن‌های FCM
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      print('📩 FCM Message received: ${message.messageId}');
-      
-      // پاک‌سازی کش و ریفرش پلی‌لیست
-      await box.erase();
-      
-      try {
-        final dir = await getApplicationDocumentsDirectory();
-        final videoDir = Directory('${dir.path}/videos');
-        if (await videoDir.exists()) {
-          videoDir.deleteSync(recursive: true);
-          print('🧽 Video cache deleted: ${videoDir.path}');
-        }
-      } catch (e) {
-        print('⚠️ Error deleting video cache: $e');
+    // پاک کردن کش‌های ذخیره‌شده
+    await box.erase();
+
+    // پاک کردن کش ویدیوها
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final videoDir = Directory('${dir.path}/videos');
+      if (await videoDir.exists()) {
+        videoDir.deleteSync(recursive: true);
+        print('🧽 Video cache deleted via WebSocket: ${videoDir.path}');
       }
+    } catch (e) {
+      print('⚠️ Error deleting video cache: $e');
+    }
+
+    // 🔥 فقط پلی‌لیست رو ریفرش کن - بدون دانلود خودکار
+    await playlistController.clearCacheWithoutDownload();
+  });
+
+  // 🔥 FCM فقط برای نمایش نوتیفیکیشن - بدون پاک‌سازی کش
+  if (fcmToken != null && fcmToken.isNotEmpty) {
+    print('🚀 Firebase Messaging active (notifications only)...');
+    
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      print('📩 FCM Notification received: ${message.messageId}');
+      print('📢 Notification Title: ${message.notification?.title}');
+      print('📝 Notification Body: ${message.notification?.body}');
       
-      // ریفرش پلی‌لیست
-      await playlistController.forceRefresh(); // ✅ این خط رو عوض کردم
+      // 🔥 فقط نوتیفیکیشن نمایش داده شود - کش پاک نمی‌شود
+      // اینجا می‌توانید نوتیفیکیشن محلی نمایش دهید اگر نیاز است
     });
 
-    // هندل کردن نوتیفیکیشن وقتی اپ در background هست
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      print('📩 FCM Message opened from background: ${message.messageId}');
-      await playlistController.forceRefresh(); // ✅ این خط رو عوض کردم
+      print('📩 FCM Notification opened from background: ${message.messageId}');
+      // 🔥 هیچ عملیات پاک‌سازی انجام نمی‌شود
     });
   }
 

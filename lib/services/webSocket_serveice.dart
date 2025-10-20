@@ -4,7 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:get/get.dart';
 import 'package:zosign/components/url.dart';
 import 'package:zosign/services/video_cache_service.dart';
-import 'package:zosign/controller/playlist_controller.dart'; // ✅ اضافه کردن ایمپورت
+import 'package:zosign/controller/playlist_controller.dart';
 
 class WebSocketService {
   static final WebSocketService _instance = WebSocketService._internal();
@@ -28,34 +28,25 @@ class WebSocketService {
 
     _isConnecting = true;
 
-    final box = GetStorage();
-    final fcmToken = box.read('fcm_token');
-
-    if (fcmToken != null && fcmToken.isNotEmpty) {
-      print('✅ FCM token found, skipping WebSocket');
-      _isConnecting = false;
-      return;
-    }
-
-    print('⚡ Using WebSocket (no FCM token) → $url');
+    print('🔗 Connecting to WebSocket: $url');
 
     try {
       _socket = await WebSocket.connect(url);
-      print('🔗 WebSocket connected: $url');
+      print('✅ WebSocket connected successfully: $url');
       _isConnecting = false;
 
       _socket!.listen(
         (data) async {
-          print('💬 WebSocket message: $data');
+          print('💬 WebSocket message received: $data');
           if (onMessage != null) onMessage(data);
-          await _handleCacheClear(); // ✅ استفاده از متد اصلاح شده
+          await _handleCacheClear();
         },
         onError: (e) {
           print('❌ WebSocket error: $e');
           _reconnect();
         },
         onDone: () {
-          print('🔚 WebSocket closed by server');
+          print('🔚 WebSocket connection closed by server');
           _reconnect();
         },
         cancelOnError: false,
@@ -71,7 +62,7 @@ class WebSocketService {
     if (_reconnectTimer?.isActive ?? false) return;
 
     _reconnectTimer = Timer(const Duration(seconds: 5), () async {
-      print('🔄 Reconnecting WebSocket...');
+      print('🔄 Attempting to reconnect WebSocket...');
       await connect(onMessage: onMessage);
     });
   }
@@ -79,29 +70,35 @@ class WebSocketService {
   /// 🧹 پاک‌کردن کش ویدیو و GetStorage + ریفرش پلی‌لیست
   Future<void> _handleCacheClear() async {
     try {
+      print('🧹 WebSocket: Starting cache clearance...');
+      
       final box = GetStorage();
-      print('🧹 Clearing video cache & GetStorage...');
+      print('🗑️ Clearing GetStorage...');
       await box.erase();
       
       final cache = VideoCacheService();
+      print('🗑️ Clearing video cache...');
       await cache.clearCache();
       
       // 🔥 ریفرش پلی‌لیست با متد جدید
       if (Get.isRegistered<PlaylistController>()) {
         final playlistController = Get.find<PlaylistController>();
         await playlistController.forceRefresh();
-        print('✅ Playlist refreshed after cache clear');
+        print('✅ Playlist refreshed after WebSocket cache clear');
       }
+      
+      print('🎯 WebSocket cache clearance completed successfully');
     } catch (e) {
-      print('⚠️ Error clearing cache: $e');
+      print('⚠️ Error during WebSocket cache clearance: $e');
     }
   }
 
   void send(String msg) {
     if (_socket?.readyState == WebSocket.open) {
       _socket!.add(msg);
+      print('📤 WebSocket message sent: $msg');
     } else {
-      print('⚠️ Cannot send, socket not connected');
+      print('⚠️ Cannot send, WebSocket not connected');
     }
   }
 
@@ -111,4 +108,7 @@ class WebSocketService {
     _socket = null;
     print('🔒 WebSocket closed manually');
   }
+
+  // وضعیت اتصال رو چک کن
+  bool get isConnected => _socket?.readyState == WebSocket.open;
 }

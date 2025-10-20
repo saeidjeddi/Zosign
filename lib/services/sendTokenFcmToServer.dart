@@ -21,18 +21,18 @@ Future<void> sendTokenToServer(String token) async {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      print('✅ Token sent successfully to server');
+      print('✅ FCM token sent successfully to server');
       print('📦 Server response: ${response.data}');
     } else {
       print('⚠️ Server responded with status: ${response.statusCode}');
       print('⚠️ Response data: ${response.data}');
     }
   } on DioException catch (e) {
-    print('🚨 Dio error: ${e.message}');
+    print('🚨 Dio error sending FCM token: ${e.message}');
     if (e.response != null) {
       print('🚨 Server response: ${e.response?.data}');
     }
   } catch (e) {
-    print('🚨 Unknown error sending token: $e');
+    print('🚨 Unknown error sending FCM token: $e');
   }
 }
