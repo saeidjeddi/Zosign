@@ -6,11 +6,13 @@ class PlaylistModel {
   String? contentType;
 
   PlaylistModel({
+    
     this.id,
     this.title,
     this.url,
     this.filename,
     this.contentType,
+
   });
 
   PlaylistModel.fromJson(Map<String, dynamic> json) {

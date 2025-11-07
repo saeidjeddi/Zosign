@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:zosign/controller/playlist_controller.dart';
 import 'package:zosign/services/sendTokenFcmToServer.dart';
 import 'package:zosign/services/webSocket_serveice.dart';
+import 'package:zosign/views/login_screen.dart';
+import 'package:zosign/views/splash_screen.dart';
 import 'firebase_options.dart';
 import 'views/main_scrren.dart';
 
@@ -135,7 +137,7 @@ class MainAppTv extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Zosign Player',
       theme: ThemeData.dark(useMaterial3: true),
-      home: const MainScreen(),
+      home:  SplashScreen(),
     );
   }
 }
