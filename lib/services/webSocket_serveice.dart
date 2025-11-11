@@ -18,6 +18,8 @@ class WebSocketService {
   bool _isConnecting = false;
   Function(String message)? onMessage;
 
+  /// 🔗 اتصال به WebSocket با مدیریت مجدد اتصال و دریافت پیام‌ها
+
   Future<void> connect({Function(String)? onMessage}) async {
     this.onMessage = onMessage;
 
@@ -58,6 +60,8 @@ class WebSocketService {
     }
   }
 
+  /// 🔄 تلاش برای اتصال مجدد WebSocket با تأخیر
+
   void _reconnect() {
     if (_reconnectTimer?.isActive ?? false) return;
 
@@ -93,6 +97,7 @@ class WebSocketService {
     }
   }
 
+/// 📤 ارسال پیام به سرور WebSocket
   void send(String msg) {
     if (_socket?.readyState == WebSocket.open) {
       _socket!.add(msg);

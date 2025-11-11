@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:zosign/components/url.dart';
 
+/// 📤 ارسال توکن FCM به سرور
 Future<void> sendTokenToServer(String token) async {
   final dio = Dio();
   final box = GetStorage();

@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 
+
+/// سرویس برای انجام درخواست‌های HTTP با استفاده از Dio
 class DioServices {
   Future<dynamic> getMethod(String url) async {
     Dio dio = Dio();

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:zosign/views/login_screen.dart';
 
+
+/// صفحه شروع با انیمیشن
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

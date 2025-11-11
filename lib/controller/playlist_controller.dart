@@ -6,6 +6,9 @@ import 'package:zosign/model/playlist_model.dart';
 import 'package:zosign/services/dio_service.dart';
 import 'package:zosign/services/video_cache_service.dart';
 
+
+
+/// 🎵 کنترلر پلی‌لیست برای مدیریت بارگذاری، دانلود و کش پلی‌لیست
 class PlaylistController extends GetxController {
   RxBool loading = false.obs;
   RxBool downloading = false.obs;
@@ -17,16 +20,20 @@ class PlaylistController extends GetxController {
   bool _isRefreshing = false;
   DateTime? _lastRefreshTime;
 
+  /// بررسی اتصال به اینترنت
+
   Future<bool> hasConnection() async {
     final conn = await Connectivity().checkConnectivity();
     return conn != ConnectivityResult.none;
   }
 
+  /// 🔄 بارگذاری پلی‌لیست از سرور یا کش با مدیریت تغییرات و جلوگیری از بارگذاری مکرر
   Future<void> loadPlaylist({bool forceRefresh = false}) async {
     if (_isRefreshing) {
       print('⏳ Refresh already in progress, skipping...');
       return;
     }
+// بررسی زمان آخرین بارگذاری
 
     final now = DateTime.now();
     if (_lastRefreshTime != null && 
@@ -40,19 +47,22 @@ class PlaylistController extends GetxController {
     loading.value = true;
 
     try {
+      // بررسی اتصال به اینترنت
       bool online = await hasConnection();
       final List<PlaylistModel> newPlaylist = [];
 
+// بارگذاری پلی‌لیست از سرور اگر آنلاین باشیم
       if (online) {
         print('🌐 Loading playlist from server...');
         final response = await DioServices().getMethod(UrlPlaylist.playlist);
         
+        // پردازش پاسخ سرور
         if (response != null && response.statusCode == 200) {
           for (var item in response.data) {
             final model = PlaylistModel.fromJson(item);
             newPlaylist.add(model);
           }
-          
+          // بررسی تغییرات در پلی‌لیست
           if (_hasPlaylistChanged(newPlaylist)) {
             print('🔄 Playlist changed, updating...');
             playlistList.assignAll(newPlaylist);
@@ -62,6 +72,7 @@ class PlaylistController extends GetxController {
         }
       } else {
         print('📱 Loading playlist from cache...');
+        // بارگذاری پلی‌لیست از کش اگر آفلاین باشیم
         final cachePath = await cacheService.getCachePath();
         final cachedFiles = Directory(cachePath)
             .listSync()
@@ -78,7 +89,7 @@ class PlaylistController extends GetxController {
             ),
           );
         }
-        
+        // بررسی تغییرات در پلی‌لیست
         if (_hasPlaylistChanged(newPlaylist)) {
           playlistList.assignAll(newPlaylist);
         }
@@ -94,6 +105,7 @@ class PlaylistController extends GetxController {
     }
   }
 
+ /// بررسی تغییرات در پلی‌لیست
   bool _hasPlaylistChanged(List<PlaylistModel> newPlaylist) {
     if (playlistList.length != newPlaylist.length) return true;
     
@@ -107,6 +119,8 @@ class PlaylistController extends GetxController {
     return false;
   }
 
+
+  /// 🔥 تازه‌سازی اجباری پلی‌لیست از سرور
   Future<void> forceRefresh() async {
     print('🔥 Force refreshing playlist...');
     await loadPlaylist(forceRefresh: true);
@@ -129,6 +143,7 @@ class PlaylistController extends GetxController {
       progress.value = 0.0;
 
       try {
+        // دانلود ویدیو با نمایش پیشرفت
         final file = await cacheService.downloadVideo(
           model.url!,
           model.filename!,

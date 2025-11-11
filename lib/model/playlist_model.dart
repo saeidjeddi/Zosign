@@ -1,3 +1,6 @@
+
+/// 📁 مدل پلی‌لیست برای نگهداری اطلاعات پلی‌لیست
+
 class PlaylistModel {
   int? id;
   String? title;

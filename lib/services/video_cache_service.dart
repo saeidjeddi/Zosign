@@ -2,9 +2,12 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
+
+/// 🗃️ سرویس مدیریت کش و دانلود ویدیوها
 class VideoCacheService {
   final Dio _dio = Dio();
 
+/// 📁 دریافت مسیر کش ویدیوها
   Future<String> getCachePath() async {
     final dir = await getApplicationDocumentsDirectory();
     final path = '${dir.path}/videos';
@@ -13,12 +16,15 @@ class VideoCacheService {
     return path;
   }
 
+
+/// 📦 دریافت فایل کش شده اگر وجود داشته باشد
   Future<File?> getCachedFile(String fileName) async {
     final path = await getCachePath();
     final file = File('$path/$fileName.mp4');
     return await file.exists() ? file : null;
   }
 
+/// ⬇️ دانلود ویدیو و ذخیره در کش
   Future<File> downloadVideo(
     String url,
     String fileName, {
@@ -36,6 +42,7 @@ class VideoCacheService {
     return File(savePath);
   }
 
+/// 🧹 پاک‌سازی کش ویدیوها
   Future<void> clearCache() async {
     final path = await getCachePath();
     final dir = Directory(path);

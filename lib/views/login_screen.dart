@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:uuid/uuid.dart';
 
 class LoginScreenTV extends StatefulWidget {
   const LoginScreenTV({super.key});
@@ -10,7 +11,9 @@ class LoginScreenTV extends StatefulWidget {
 
 class _LoginScreenTVState extends State<LoginScreenTV> {
   String androidId = 'Loading...';
+  String androidName = '';
   bool isLoading = true;
+  var uuid = Uuid();
 
   @override
   void initState() {
@@ -22,14 +25,16 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
     try {
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      
+
       setState(() {
         androidId = androidInfo.id ?? 'Unknown ID ....';
+        androidName = androidInfo.brand ?? 'Unknown ...';
         isLoading = false;
       });
     } catch (e) {
       setState(() {
         androidId = 'Error retrieving ID';
+        androidName = '';
         isLoading = false;
       });
       print('Error: $e');
@@ -53,11 +58,11 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final orientation = MediaQuery.of(context).orientation;
-    
+
     bool isMobile = size.shortestSide < 600;
     bool isTablet = size.shortestSide >= 600 && size.shortestSide < 1200;
     bool isLandscape = orientation == Orientation.landscape;
-    
+
     return Scaffold(
       backgroundColor: Colors.grey[900],
       body: SafeArea(
@@ -66,11 +71,16 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
     );
   }
 
-  Widget _buildResponsiveLayout(bool isMobile, bool isTablet, bool isLandscape, Size size) {
+  Widget _buildResponsiveLayout(
+    bool isMobile,
+    bool isTablet,
+    bool isLandscape,
+    Size size,
+  ) {
     if (isMobile && isLandscape) {
       return _buildMobileLandscapeLayout();
     }
-    
+
     if (isMobile) {
       return _buildMobilePortraitLayout();
     } else if (isTablet) {
@@ -94,10 +104,7 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
             ),
           ),
         ),
-        Expanded(
-          flex: 1,
-          child: _buildLoginForm(false, false, false),
-        ),
+        Expanded(flex: 1, child: _buildLoginForm(false, false, false)),
       ],
     );
   }
@@ -116,10 +123,7 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
             ),
           ),
         ),
-        Expanded(
-          flex: 1,
-          child: _buildLoginForm(true, false, false),
-        ),
+        Expanded(flex: 1, child: _buildLoginForm(true, false, false)),
       ],
     );
   }
@@ -163,10 +167,7 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
             ),
           ),
         ),
-        Expanded(
-          flex: 1,
-          child: _buildLoginForm(false, true, true),
-        ),
+        Expanded(flex: 1, child: _buildLoginForm(false, true, true)),
       ],
     );
   }
@@ -219,25 +220,25 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
       color: Colors.grey[850],
       padding: EdgeInsets.all(getPaddingValue()),
       child: Column(
-        mainAxisAlignment: isMobile && isLandscape 
-            ? MainAxisAlignment.center 
+        mainAxisAlignment: isMobile && isLandscape
+            ? MainAxisAlignment.center
             : MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-            Column(
-              children: [
-                Text(
-                  'Login Zosign',
-                  style: TextStyle(
-                    fontSize: getTitleFontSize(),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+          Column(
+            children: [
+              Text(
+                'Login Zosign',
+                style: TextStyle(
+                  fontSize: getTitleFontSize(),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                SizedBox(height: getSpacingValue()),
-              ],
-            ),
-          
+              ),
+              SizedBox(height: getSpacingValue()),
+            ],
+          ),
+
           // Login Card
           Card(
             elevation: 4,
@@ -255,7 +256,7 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
                     ),
                   ),
                   SizedBox(height: getSpacingValue() * 0.5),
-                  
+
                   isLoading
                       ? SizedBox(
                           height: getBodyFontSize() * 2,
@@ -275,11 +276,71 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                  
+                  Text(
+                    'Device Name:',
+                    style: TextStyle(
+                      fontSize: getBodyFontSize(),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white60,
+                    ),
+                  ),
+                  SizedBox(height: getSpacingValue() * 0.5),
+
+                  isLoading
+                      ? SizedBox(
+                          height: getBodyFontSize() * 2,
+                          child: CircularProgressIndicator(),
+                        )
+                      : SizedBox(
+                          width: double.infinity,
+                          child: Text(
+                            androidName,
+                            style: TextStyle(
+                              fontSize: getBodyFontSize() + 2,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.yellow,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                  Text(
+                    'UUID:',
+                    style: TextStyle(
+                      fontSize: getBodyFontSize(),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white60,
+                    ),
+                  ),
+                  SizedBox(height: getSpacingValue() * 0.5),
+
+                  isLoading
+                      ? SizedBox(
+                          height: getBodyFontSize() * 2,
+                          child: CircularProgressIndicator(),
+                        )
+                      : SizedBox(
+                          width: double.infinity,
+                          child: Text(
+                            uuid.v4(),
+                            style: TextStyle(
+                              fontSize: getBodyFontSize() + 2,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.yellow,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
                   SizedBox(height: getSpacingValue()),
-          
+
                   SizedBox(
-                    width: isMobile && isLandscape ? size.width * 0.3 : double.infinity,
+                    width: isMobile && isLandscape
+                        ? size.width * 0.3
+                        : double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle login action
@@ -295,10 +356,8 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
                         ),
                       ),
                       child: Text(
-                        'Login', 
-                        style: TextStyle(
-                          fontSize: getBodyFontSize() + 2,
-                        )
+                        'Login',
+                        style: TextStyle(fontSize: getBodyFontSize() + 2),
                       ),
                     ),
                   ),
@@ -309,54 +368,52 @@ class _LoginScreenTVState extends State<LoginScreenTV> {
 
           SizedBox(height: getSpacingValue()),
 
-         
-          
-            Container(
-              height: isMobile ? 70 : 70,
-              margin: EdgeInsets.only(top: getSpacingValue()),
-              child: PageView.builder(
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.symmetric(horizontal: 4),
-                    padding: EdgeInsets.all( 0.5),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[700],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.grey[300],
-                          size: getBodyFontSize(),
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _getHelpText(index),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: getBodyFontSize() - 1, 
-                              color: Colors.grey[300],
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 2,
+          Container(
+            height: isMobile ? 70 : 70,
+            margin: EdgeInsets.only(top: getSpacingValue()),
+            child: PageView.builder(
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: EdgeInsets.symmetric(horizontal: 4),
+                  padding: EdgeInsets.all(0.5),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[700],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.grey[300],
+                        size: getBodyFontSize(),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _getHelpText(index),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: getBodyFontSize() - 1,
+                            color: Colors.grey[300],
+                            fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 2,
                         ),
-                        SizedBox(width: 8),
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.grey[300],
-                          size: getBodyFontSize(),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.grey[300],
+                        size: getBodyFontSize(),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
+          ),
         ],
       ),
     );
